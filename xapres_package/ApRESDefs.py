@@ -666,7 +666,7 @@ class xapres():
         t1 = data1.time.data
         t2 = data2.time.data
         dt = (t2-t1)/ np.timedelta64(1, 's')
-        self.logger.info(f"Time between bursts : {dt}s")
+        #self.logger.info(f"Time between bursts : {dt}s")
         # Get phase difference
         
         if range_ext is not None:
@@ -727,8 +727,8 @@ class xapres():
             idxs = np.arange(win//2, len(self.data)-win//2, step)
             w_err = np.array([np.nanmean(r_uncertainty[i-win//2:i+win//2]) for i in idxs])'''
         
-        coords = {'time':(['time'],t2,{'units': 'seconds','long_name':'Time of second burst'}),'profile_range':(['profile_range'],ds.profile_range.data,{'units': 'm','long_name':'Depth'})}
-        data_vars = {'time_diff':(['time'],np.cumsum(dt),{'units': 'seconds','long_name':'Time since first burst'}),
+        coords = {'time':(['time'],t1+(t2-t1)/2,{'units': 'seconds','long_name':'Midpoint between bursts'}),'profile_range':(['profile_range'],ds.profile_range.data,{'units': 'm','long_name':'Depth'})}
+        data_vars = {'time_diff':(['time'],dt,{'units': 'seconds','long_name':'Time between bursts'}),
                      'range_diff':(['time','profile_range'], w, #np.cumsum(w,axis=0), 
                          {'units': 'm', 
                           'long_name':'Range difference'}),
