@@ -20,6 +20,7 @@ def phase2range(phi, lambdac=0.5608, rc=None, K=2e8, ci=1.6823e8):
             chirp gradient (rad/s/s)
         ci: float; optional
             propagation velocity (m/s)
+            1.6823e8 comes from 3e8/sqrt(
         ### Original Matlab File Notes ###
         Craig Stewart
         2014/6/10

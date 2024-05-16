@@ -649,13 +649,13 @@ class xapres():
         c:  array
             phase coherence
         """
-        top = np.einsum('ij,ij->i', s1, np.conj(s2))
+        top = np.einsum('ij,ij->i', np.conj(s1), s2)
         bottom = np.sqrt(np.sum(np.abs(s1)**2,axis=1)*np.sum(np.abs(s2)**2,axis=1))
         c = top/bottom
 
         return c
 
-    def generate_range_diff(self, data1, data2, win_cor, step, range_ext=None, win_wrap=10, thresh=0.9, uncertainty='CR'):
+    def generate_range_diff(self, data1, data2, win_cor, step, range_ext=None, win_wrap=0, thresh=0.9, uncertainty='CR'):
         """
         Input data:
         data1, data2: xarray.DataArrays describing the "profile" variable
@@ -666,6 +666,9 @@ class xapres():
         t1 = data1.time.data
         t2 = data2.time.data
         dt = (t2-t1)/ np.timedelta64(1, 's')
+        centre_freq = data1.attrs['centre_freq']
+        c_ice = 1.6823e8 
+        lambda_c = c_ice/centre_freq
         #self.logger.info(f"Time between bursts : {dt}s")
         # Get phase difference
         
@@ -690,8 +693,8 @@ class xapres():
             co[:,i] = self.coherence(arr1.data, arr2.data)
         
         # Phase unwrapping
-        phi = -np.angle(co).astype(float)
-        for i in range(co.shape[1]-1):
+        phi = np.angle(co).astype(float)
+        '''for i in range(co.shape[1]-1):
             for t in range(co.shape[0]):
                 idx = i+1
                 if np.all(abs(co[t,idx-win_wrap:idx+win_wrap]) < thresh):
@@ -699,13 +702,13 @@ class xapres():
                 if phi[t,idx]-phi[t,idx-1] > np.pi:
                     phi[t,idx:] -= 2.*np.pi
                 elif phi[t,idx]-phi[t,idx-1] < -np.pi:
-                    phi[t,idx:] += 2.*np.pi
+                    phi[t,idx:] += 2.*np.pi'''
         # Range difference calculation
         w = phase2range(phi,
-                         0.5608,
-                         ds.data,
+                         lambda_c,
+                         None,
                          2e8,
-                         1.6823e8)
+                         c_ice)
 
         # If the individual acquisitions have had uncertainty calculations
         
@@ -714,10 +717,10 @@ class xapres():
             sigma = (1./abs(co))*np.sqrt((1.-abs(co)**2.)/(2.*win_cor))
             # convert the phase offset to a distance vector
             w_err = phase2range(sigma,
-                                    0.5608,
-                                    ds.data,
+                                    lambda_c,
+                                    None,
                                     2e8,
-                                    1.6823e8)
+                                    c_ice)
 
         '''elif uncertainty == 'noise_phasor':
             # Uncertainty from Noise Phasor as in Kingslake et al. (2014)

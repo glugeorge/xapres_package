@@ -99,7 +99,7 @@ def custom_profile(chirps,clip_threshold=1.2,min_chirps = 20,start=0,stop=39999,
     start_freq = regular_freq_range[start]
     stop_freq = regular_freq_range[stop-1]
     B = stop_freq - start_freq
-    CentreFreq = B/2
+    CentreFreq = (stop_freq + start_freq)/2
     K = 2e8 # determined from step-up freq (5000 Hz) and step-up time (2.5e-5)
     c0 = 3e8 # speed of light in vaccuum
     ER_ICE = 3.18
@@ -145,4 +145,8 @@ def custom_profile(chirps,clip_threshold=1.2,min_chirps = 20,start=0,stop=39999,
                   dims=['time','profile_range'],
                   coords={'profile_range': Range,
                          'time': chirps.time.data})
+    da.attrs['centre_freq']= CentreFreq
+    da.attrs['bandwidth']= B
+    da.attrs['start_freq']= start_freq
+    da.attrs['stop_fre']= stop_freq
     return da
