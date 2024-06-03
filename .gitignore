@@ -6,6 +6,8 @@ __pycache__/
 *.so
 
 # Large files
+*.txt
+*.csv
 *.pickle
 
 # Distribution / packaging
